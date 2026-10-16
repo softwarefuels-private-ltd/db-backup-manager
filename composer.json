@@ -1,10 +1,10 @@
 {
     "$schema": "https://getcomposer.org/schema.json",
-    "name": "laravel/laravel",
+    "name": "softwarefuels/db-backup-manager",
     "type": "project",
-    "description": "The skeleton application for the Laravel framework.",
-    "keywords": ["laravel", "framework"],
-    "license": "MIT",
+    "description": "Open-source web manager for automated database backups across multiple engines and cloud storage destinations.",
+    "keywords": ["database", "backup", "mysql", "postgres", "mongodb", "sqlite", "s3", "laravel", "vue"],
+    "license": "Apache-2.0",
     "require": {
         "php": "^8.3",
         "laravel/framework": "^13.17",
