@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Attributes\Hidden;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
@@ -20,6 +21,12 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
     'password',
     'private_key',
     'root',
+    'connection_string',
+])]
+#[Hidden([
+    'secret_access_key',
+    'password',
+    'private_key',
     'connection_string',
 ])]
 class StorageDestination extends Model

@@ -5,6 +5,7 @@ namespace Tests\Feature;
 use App\Models\DatabaseConnection;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\DB;
 use Laravel\Sanctum\Sanctum;
 use Tests\TestCase;
 
@@ -128,5 +129,36 @@ class DatabaseConnectionApiTest extends TestCase
             ->assertJsonPath('0.health.healthy', true);
 
         @unlink($tempPath);
+    }
+
+    public function test_credentials_are_encrypted_in_db_auto_decrypted_in_code_and_hidden_from_json(): void
+    {
+        $plainSecret = 'super-secret-password-xyz';
+
+        $conn = DatabaseConnection::create([
+            'name' => 'Secure MySQL',
+            'driver' => 'mysql',
+            'host' => '127.0.0.1',
+            'port' => 3306,
+            'database' => 'secure_db',
+            'username' => 'admin',
+            'password' => $plainSecret,
+        ]);
+
+        // 1. Raw DB value is encrypted and not stored in plain text
+        $raw = DB::table('database_connections')->where('id', $conn->id)->first();
+        $this->assertNotEquals($plainSecret, $raw->password);
+        $this->assertStringNotContainsString($plainSecret, $raw->password);
+
+        // 2. Eloquent model auto-decrypts attribute when accessed by code
+        $fresh = DatabaseConnection::find($conn->id);
+        $this->assertEquals($plainSecret, $fresh->password);
+
+        // 3. Hidden from serialization and API responses
+        $this->assertArrayNotHasKey('password', $fresh->toArray());
+        $response = $this->getJson("/api/v1/connections/{$conn->id}");
+        $response->assertStatus(200)
+            ->assertJsonMissing(['password' => $plainSecret])
+            ->assertJsonMissingPath('password');
     }
 }
